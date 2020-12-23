@@ -1,51 +1,27 @@
-const util = require('util')
-const mysql = require('mysql')
-const db = require('../../db/db')
+const ArticleService = require('./article.service');
 
 module.exports = {
-    get: (req, res) => {
-        const sql = 'SELECT * FROM articles limit ?, ?';
-        const limit = 20;
-        const start = (req.query.page || 0) * limit;
-
-        db.query(sql, [start, limit], (err, response) => {
+    getAll: (req, res) => {
+        ArticleService.get(20, req.query.page, function(err, response) {
             if (err) {
-                throw err
+                res.send(err);
             }
 
-            res.json(response.map(({ id, content, ...each }) => each))
-        })
+            res.json(response);
+        });
     },
 
-    detail: (req, res) => {
-        const sql = 'SELECT * FROM articles WHERE id = ? limit 1';
-
-        db.query(sql, [req.params.id], (err, response) => {
+    getContent: (req, res) => {
+        ArticleService.getArticleContentById(req.params.id, function(err, response) {
             if (err) {
-                throw err
+                res.send(err);
             }
 
-            const { content, others } = response[0];
-
-            res.json({ content })
-        })
+            res.json(response);
+        });
     },
 
-    update: (req, res) => {
-        const data = req.body;
-        const articleId = req.params.id;
-        const sql = 'UPDATE articles SET ? WHERE id = ?';
-
-        db.query(sql, [data, articleId], (err, response) => {
-            if (err) {
-                throw err
-            }
-
-            res.json({ message: 'Update success!' })
-        })
-    },
-
-    store: (req, res) => {
+    save: (req, res) => {
         const data = Object.assign(
             req.body,
             {
@@ -53,14 +29,12 @@ module.exports = {
             },
         );
 
-        const sql = 'INSERT INTO articles SET ?';
-
-        db.query(sql, [data], (err, response) => {
+        ArticleService.save(data, function(err, response) {
             if (err) {
-                throw err
+                res.send(err);
             }
 
-            res.json({ message: 'Insert success!' })
-        })
+            res.json(response);
+        });
     },
 }

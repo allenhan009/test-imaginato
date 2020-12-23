@@ -3,20 +3,15 @@ module.exports = function (app) {
 	const commentController = require('./api/comment/comment.controller');
 
 	app.route('/api/articles')
-		.get(articleController.get)
-		.post(articleController.store);
+		.get(articleController.getAll)
+		.post(articleController.save);
 
 	app.route('/api/articles/:id')
-		.get(articleController.detail)
-		.put(articleController.update);
-
-	app.route('/api/comments')
-		.post(commentController.store);
+		.get(articleController.getContent);
 
 	app.route('/api/comments/:id')
-		.get(commentController.get)
+		.get(commentController.getCommentsByArticleId)
 		.post(commentController.commentOnArticle);
-
 		
 	app.route('/api/comments/:articleId/comment/:commentId')
 		.post(commentController.commentOnComment);
