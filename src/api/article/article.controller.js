@@ -1,6 +1,6 @@
 const util = require('util')
 const mysql = require('mysql')
-const db = require('./../../../db/db')
+const db = require('../../db/db')
 
 module.exports = {
     get: (req, res) => {

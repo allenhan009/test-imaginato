@@ -1,20 +1,24 @@
 module.exports = function (app) {
-	const articleController = require('./api/article/controller/article.controller');
-	const commentController = require('./api/comment/controller/comment.controller');
+	const articleController = require('./api/article/article.controller');
+	const commentController = require('./api/comment/comment.controller');
 
-	// todoList Routes
-	app.route('/articles')
+	app.route('/api/articles')
 		.get(articleController.get)
 		.post(articleController.store);
 
-	app.route('/articles/:id')
+	app.route('/api/articles/:id')
 		.get(articleController.detail)
 		.put(articleController.update);
 
-	app.route('/comments')
+	app.route('/api/comments')
 		.post(commentController.store);
 
-	app.route('/comments/:id')
-		.get(commentController.get);
+	app.route('/api/comments/:id')
+		.get(commentController.get)
+		.post(commentController.commentOnArticle);
+
+		
+	app.route('/api/comments/:articleId/comment/:commentId')
+		.post(commentController.commentOnComment);
 
 }
