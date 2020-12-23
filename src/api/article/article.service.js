@@ -20,9 +20,19 @@ const getArticleContentById = (id, result) => {
         if (error) {
             result(error, null);
         } else {
-            const { content, others } = records[0];
+            if (records && records.length > 0) {
+                const { content, others } = records[0];
 
-            result(null, {content});
+                result(null, { content });
+            } else {
+                result(
+                    null,
+                    { 
+                        errorCode: 404, 
+                        errorMessage: "Not found article" 
+                    }
+                );
+            }
         }
     });
 }

@@ -1,4 +1,5 @@
 const db = require('../../db/db');
+const ArticleService = require('./../article/article.service');
 
 const checkMatchCommentAndArticle = (articleId, commentId, result) => {
     const sql = `
@@ -8,9 +9,9 @@ const checkMatchCommentAndArticle = (articleId, commentId, result) => {
 
     db.query(sql, [articleId, commentId], (error, response) => {
         if (error) {
-            result(error);
+            result(error, null);
         } else {
-            result(response.length > 0);
+            result(null, response.length > 0);
         }
     });
 }
@@ -86,9 +87,9 @@ const getCommentsByArticleId = (id, result) => {
 
 const addComment = (articleId, commentId, commentData, result) => {
     if (commentId) {
-        checkMatchCommentAndArticle(articleId, commentId, (error, _result) => {
-            if (error) {
-                result(error);
+        checkMatchCommentAndArticle(articleId, commentId, (_error, _result) => {
+            if (_error) {
+                result(_error);
             } else {
                 if (_result) {
                     const data = Object.assign(
@@ -112,30 +113,36 @@ const addComment = (articleId, commentId, commentData, result) => {
                 } else {
                     result({
                         errorCode: 404,
-                        message: "Don't match article with the comment!",
+                        errorMessage: "Don't match article with the comment!",
                     });
                 }
             }
         });
     } else {
-        const data = Object.assign(
-            commentData,
-            {
-                article_id: articleId,
-                comment_id: commentId,
-                creation_date: new Date()
-            },
-        );
-
-        const sql = 'INSERT INTO comments SET ?';
-
-        db.query(sql, [data], (error, response) => {
-            if (error) {
-                result(error);
+        ArticleService.getArticleContentById(articleId, (_error, _result) => {
+            if (_result && _result.errorCode) {
+                result(_result);
             } else {
-                result({ message: 'Insert success!' });
+                const data = Object.assign(
+                    commentData,
+                    {
+                        article_id: articleId,
+                        comment_id: commentId,
+                        creation_date: new Date()
+                    },
+                );
+
+                const sql = 'INSERT INTO comments SET ?';
+
+                db.query(sql, [data], (error, response) => {
+                    if (error) {
+                        result(error);
+                    } else {
+                        result({ message: 'Insert success!' });
+                    }
+                });
             }
-        });
+        })
     }
 }
 
